@@ -2,6 +2,7 @@ import express from "express";
 import "dotenv/config";
 import cors from "cors";
 import connectDB from "./config/dbConnect.js";
+import { clerkWebhooks } from "./controllers/webHook.js";
 
 //server initialize
 const server = express();
