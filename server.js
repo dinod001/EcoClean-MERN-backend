@@ -3,6 +3,8 @@ import "dotenv/config";
 import cors from "cors";
 import connectDB from "./config/dbConnect.js";
 import { clerkWebhooks } from "./controllers/webHook.js";
+import { authenticateUser } from "./middleware/authMiddleware.js";
+import { clerkMiddleware } from "@clerk/express";
 
 //server initialize
 const server = express();
@@ -13,10 +15,15 @@ await connectDB();
 //middlewares
 server.use(express.json());
 server.use(cors());
+server.use(clerkMiddleware())
 
 //routes
 server.get("/", (req, res) => {
   res.status(200).send("API working");
+});
+
+server.get("/course", authenticateUser, (req, res) => {
+  res.send("authorized");
 });
 
 server.post("/clerk", express.json(), clerkWebhooks);
