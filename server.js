@@ -19,7 +19,7 @@ server.get("/", (req, res) => {
   res.status(200).send("API working");
 });
 
-app.post("/clerk", express.json(), clerkWebhooks);
+server.post("/clerk", express.json(), clerkWebhooks);
 
 //PORT define
 const PORT = process.env.PORT || 5000;
