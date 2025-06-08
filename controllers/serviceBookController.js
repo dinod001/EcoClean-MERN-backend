@@ -41,7 +41,7 @@ export const updateBooking=async(req,res)=>{
 //get all booking
 export const getAllBooking=async(req,res)=>{
     try {
-        const { id } = req.params;
+        const id=req.auth.userId;
         const allBookings=await ServiceBook.find({userId:id})
         res.status(200).json({ success: true, allBookings });
     } catch (error) {

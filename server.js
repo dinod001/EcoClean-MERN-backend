@@ -6,12 +6,15 @@ import { clerkWebhooks } from "./controllers/webHook.js";
 import { authenticateUser } from "./middleware/authMiddleware.js";
 import { clerkMiddleware } from "@clerk/express";
 import serviceRouter from "./routes/serviceRouter.js";
+import requestPickupRouter from "./routes/requestPickup.js";
+import connectCloudinary from "./config/cloudinary.js";
 
 //server initialize
 const server = express();
 
 //connecto to database
 await connectDB();
+await connectCloudinary();
 
 //middlewares
 server.use(express.json());
@@ -24,8 +27,11 @@ server.get("/", (req, res) => {
   res.status(200).send("API working");
 });
 
-//book new service
+//book services
 server.use("/api/user",authenticateUser,serviceRouter)
+
+//plce pickup requst
+server.use("/api/user",authenticateUser,requestPickupRouter)
 
 server.post("/clerk", express.json(), clerkWebhooks);
 

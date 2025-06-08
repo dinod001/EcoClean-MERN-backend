@@ -1,13 +1,9 @@
 import mongoose from "mongoose";
 
-const serviceBookSchema=new mongoose.Schema({
+const requestPickupSchema=new mongoose.Schema({
     userId:{
         type:String,
         ref:"User",
-        required:true
-    },
-    serviceName:{
-        type:String,
         required:true
     },
     userName:{
@@ -21,6 +17,9 @@ const serviceBookSchema=new mongoose.Schema({
     location:{
         type:String,
         required:true
+    },
+    imageUrl:{
+        type:String
     },
     date:{
         type:Date,
@@ -40,6 +39,6 @@ const serviceBookSchema=new mongoose.Schema({
 },{timestamps:true})
 
 
-const ServiceBook=mongoose.model("ServiceBook",serviceBookSchema)
+const RequestPickup=mongoose.model("RequestPickup",requestPickupSchema)
 
-export default ServiceBook;
+export default RequestPickup;
