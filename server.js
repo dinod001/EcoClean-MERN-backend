@@ -5,6 +5,7 @@ import connectDB from "./config/dbConnect.js";
 import { clerkWebhooks } from "./controllers/webHook.js";
 import { authenticateUser } from "./middleware/authMiddleware.js";
 import { clerkMiddleware } from "@clerk/express";
+import serviceRouter from "./routes/serviceRouter.js";
 
 //server initialize
 const server = express();
@@ -17,20 +18,21 @@ server.use(express.json());
 server.use(cors());
 server.use(clerkMiddleware())
 
+
 //routes
 server.get("/", (req, res) => {
   res.status(200).send("API working");
 });
 
-server.get("/course", authenticateUser, (req, res) => {
-  res.send("authorized");
-});
+//book new service
+server.use("/api/user",authenticateUser,serviceRouter)
 
 server.post("/clerk", express.json(), clerkWebhooks);
+
 
 //PORT define
 const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {
-  console.log("Server is runnning");
+  console.log(`Server is runnning on ${PORT}`);
 });
