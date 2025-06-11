@@ -3,12 +3,12 @@ import "dotenv/config";
 import cors from "cors";
 import connectDB from "./config/dbConnect.js";
 import { clerkWebhooks } from "./controllers/webHook.js";
-import { authenticateUser } from "./middleware/authMiddleware.js";
 import { clerkMiddleware } from "@clerk/express";
 import serviceRouter from "./routes/serviceRouter.js";
 import requestPickupRouter from "./routes/requestPickup.js";
 import connectCloudinary from "./config/cloudinary.js";
 import customerInquiryRouter from "./routes/customerInquiryRouter.js";
+import notificationRouter from "./routes/notificationRouter.js";
 
 //server initialize
 const server = express();
@@ -29,12 +29,16 @@ server.get("/", (req, res) => {
 });
 
 //book services
-server.use("/api/user",authenticateUser,serviceRouter)
+server.use("/api/user",express.json(),serviceRouter)
 
 //plce pickup requst
-server.use("/api/user",authenticateUser,requestPickupRouter)
+server.use("/api/user",express.json(),requestPickupRouter)
+
 //customer inquiries
-server.use("/api/user",authenticateUser,customerInquiryRouter)
+server.use("/api/user",express.json(),customerInquiryRouter)
+
+//notifications
+server.use("/api/user",express.json(),notificationRouter)
 
 server.post("/clerk", express.json(), clerkWebhooks);
 
