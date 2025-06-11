@@ -9,6 +9,7 @@ import requestPickupRouter from "./routes/requestPickup.js";
 import connectCloudinary from "./config/cloudinary.js";
 import customerInquiryRouter from "./routes/customerInquiryRouter.js";
 import notificationRouter from "./routes/notificationRouter.js";
+import userRouter from "./routes/userRouter.js";
 
 //server initialize
 const server = express();
@@ -30,6 +31,9 @@ server.get("/", (req, res) => {
 
 //book services
 server.use("/api/user",express.json(),serviceRouter)
+
+//user
+server.use("/api/user",express.json(),userRouter)
 
 //plce pickup requst
 server.use("/api/user",express.json(),requestPickupRouter)

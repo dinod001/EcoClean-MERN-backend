@@ -26,6 +26,10 @@ const serviceBookSchema=new mongoose.Schema({
         type:Date,
         required:true
     },
+    price:{
+        type:Number,
+        default:0
+    },
     staff: [
         {
           type: mongoose.Schema.Types.ObjectId,
