@@ -27,7 +27,7 @@ const requestPickupSchema=new mongoose.Schema({
     },
     price:{
         type:Number,
-        default:0
+        default:10
     },
     staff: [
         {
