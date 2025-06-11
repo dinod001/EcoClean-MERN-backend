@@ -8,6 +8,7 @@ import { clerkMiddleware } from "@clerk/express";
 import serviceRouter from "./routes/serviceRouter.js";
 import requestPickupRouter from "./routes/requestPickup.js";
 import connectCloudinary from "./config/cloudinary.js";
+import customerInquiryRouter from "./routes/customerInquiryRouter.js";
 
 //server initialize
 const server = express();
@@ -32,6 +33,8 @@ server.use("/api/user",authenticateUser,serviceRouter)
 
 //plce pickup requst
 server.use("/api/user",authenticateUser,requestPickupRouter)
+//customer inquiries
+server.use("/api/user",authenticateUser,customerInquiryRouter)
 
 server.post("/clerk", express.json(), clerkWebhooks);
 
