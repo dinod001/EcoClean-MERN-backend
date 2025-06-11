@@ -10,6 +10,7 @@ export const completePayment = async (req, res) => {
     const userId = req.auth.userId;
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
     const currency = process.env.CURRENCY.toLowerCase();
+    
 
     let purchaseData = {};
     let itemName = "";
