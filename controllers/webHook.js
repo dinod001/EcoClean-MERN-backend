@@ -88,7 +88,7 @@ export const stripeWebhooks = async (request, response) => {
         const purchaseId = paymentIntent.metadata.purchaseId;
       
         if (!purchaseId) {
-          return response.status(404).send("Purchase not found");
+          return response.status(404).send("Purchase not found"+purchaseId);
         }
       
         const purchaseData = await Purchase.findById(purchaseId);
