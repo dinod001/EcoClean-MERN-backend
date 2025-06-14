@@ -61,7 +61,6 @@ export const clerkWebhooks = async (req, res) => {
   }
 };
 
-//payment
 const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export const stripeWebhooks = async (request, response) => {
@@ -75,7 +74,8 @@ export const stripeWebhooks = async (request, response) => {
       process.env.STRIPE_WEBHOOK_SECRET
     );
   } catch (err) {
-    response.status(400).send(`Webhook Error: ${err.message}`);
+    console.error("⚠️ Webhook signature verification failed:", err.message);
+    return response.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   try {
@@ -84,38 +84,53 @@ export const stripeWebhooks = async (request, response) => {
         const paymentIntent = event.data.object;
         const paymentIntentId = paymentIntent.id;
 
-        const session = await stripeInstance.checkout.sessions.list({
+        const sessions = await stripeInstance.checkout.sessions.list({
           payment_intent: paymentIntentId,
+          limit: 1,
         });
-    
-        const { purchaseId } = session.data[0].metadata;
+
+        if (!sessions.data.length) {
+          console.warn("❗ No session found for payment_intent:", paymentIntentId);
+          return response.status(404).send("No checkout session found");
+        }
+
+        const session = sessions.data[0];
+        const purchaseId = session.metadata?.purchaseId;
+
         if (!purchaseId) {
+          console.warn("⚠️ No purchaseId in session metadata for:", paymentIntentId);
           return response.status(400).send("purchaseId metadata missing");
         }
-    
-        console.log(purchaseId);
-        
+
+        console.log("✅ purchaseId:", purchaseId);
+
         const purchaseData = await Purchase.findById(purchaseId);
         if (!purchaseData) {
+          console.warn("⚠️ Purchase record not found for ID:", purchaseId);
           return response.status(404).send("Purchase record not found in DB");
         }
-    
-        let data = await ServiceBook.findById(purchaseData.orderId.toString());
-        if (!data) {
-          data = await RequestPickup.findById(purchaseData.orderId.toString());
+
+        let orderData = await ServiceBook.findById(purchaseData.orderId.toString());
+        if (!orderData) {
+          orderData = await RequestPickup.findById(purchaseData.orderId.toString());
         }
-    
+
+        if (!orderData) {
+          console.warn("⚠️ Order (ServiceBook or RequestPickup) not found for ID:", purchaseData.orderId);
+          return response.status(404).send("Order not found");
+        }
+
         purchaseData.status = "completed";
-        purchaseData.paymentStage = data.advance !== 0 ? "AdvancePaid" : "FullyPaid";
+        purchaseData.paymentStage = orderData.advance !== 0 ? "AdvancePaid" : "FullyPaid";
         await purchaseData.save();
-    
-        data.advance = 0;
-        data.status = purchaseData.paymentStage === "AdvancePaid" ? "In Progress" : "Completed";
-        await data.save();
-    
+
+        orderData.advance = 0;
+        orderData.status = purchaseData.paymentStage === "AdvancePaid" ? "In Progress" : "Completed";
+        await orderData.save();
+
+        console.log("✅ Payment completed and records updated");
         break;
       }
-    
 
       case "payment_intent.payment_failed": {
         const paymentIntent = event.data.object;
@@ -127,7 +142,7 @@ export const stripeWebhooks = async (request, response) => {
         });
 
         if (!sessions.data.length) {
-          console.error("No checkout session found for payment_intent:", paymentIntentId);
+          console.warn("❗ No checkout session found for failed payment_intent:", paymentIntentId);
           return response.status(404).send("Session not found");
         }
 
@@ -135,13 +150,13 @@ export const stripeWebhooks = async (request, response) => {
         const purchaseId = session.metadata?.purchaseId;
 
         if (!purchaseId) {
-          console.error("purchaseId missing in session metadata for payment_intent:", paymentIntentId);
+          console.warn("⚠️ No purchaseId metadata for failed payment_intent:", paymentIntentId);
           return response.status(400).send("purchaseId metadata missing");
         }
 
         const purchaseData = await Purchase.findById(purchaseId);
         if (!purchaseData) {
-          console.error("Purchase not found in DB for ID:", purchaseId);
+          console.warn("⚠️ Failed payment, but purchase record not found for ID:", purchaseId);
           return response.status(404).send("Purchase not found");
         }
 
@@ -149,17 +164,18 @@ export const stripeWebhooks = async (request, response) => {
         purchaseData.paymentStage = "Unpaid";
         await purchaseData.save();
 
+        console.log("❌ Payment failed, purchase updated");
         break;
       }
 
       default:
-        console.log(`Unhandled event type ${event.type}`);
+        console.log(`ℹ️ Unhandled event type: ${event.type}`);
+        break;
     }
 
-    // Return a response to acknowledge receipt of the event
-    response.json({ received: true });
+    return response.json({ received: true });
   } catch (err) {
-    console.error("Error processing webhook event:", err);
-    response.status(500).send("Internal Server Error");
+    console.error("❌ Error processing webhook event:", err);
+    return response.status(500).send("Internal Server Error");
   }
 };

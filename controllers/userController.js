@@ -69,6 +69,9 @@ export const completePayment = async (req, res) => {
       metadata: {
         purchaseId: newPurchase._id.toString(),
       },
+      payment_intent_data: {
+        metadata: { purchaseId: newPurchase._id.toString() } // <- THIS ENSURES `payment_intent` ALSO GETS IT
+      }
     });
   
     return res.json({ success: true, session_url: session.url });
