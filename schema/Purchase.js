@@ -12,8 +12,19 @@ const purchaseSchema = new mongoose.Schema(
       ref: "User",
       requied: true,
     },
+    
+    stripeSessionId: {
+      type: String,
+    }, 
 
     amount: { type: Number, required: true },
+
+    paymentStage: {
+      type: String,
+      enum: ['Unpaid', 'AdvancePaid', 'FullyPaid'],
+      default: 'Unpaid'
+    },
+    
     status: {
       type: String,
       enum: ["Pending", "Completed", "Failed"],

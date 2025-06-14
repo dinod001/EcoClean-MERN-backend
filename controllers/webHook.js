@@ -63,75 +63,80 @@ export const clerkWebhooks = async (req, res) => {
 
 
 //payment
-const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-export const stripeWebhooks = async (request, response) => {
-  const sig = request.headers["stripe-signature"];
-  const data=null;
-
+export const stripeWebhooks = async (req, res) => {
+  const sig = req.headers["stripe-signature"];
   let event;
 
   try {
-    event = Stripe.webhooks.constructEvent(
-      request.body,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET
-    );
+    event = Stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (err) {
-    response.status(400).send(`Webhook Error: ${err.message}`);
+    console.error("Webhook signature verification failed:", err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // Handle the event
-  switch (event.type) {
-    case "payment_intent.succeeded": {
-      const paymentIntent = event.data.object;
-      const paymentIntentId = paymentIntent.id;
+  try {
+    switch (event.type) {
+      case "payment_intent.succeeded": {
+        const paymentIntent = event.data.object;
 
-      const session = await stripeInstance.checkout.sessions.list({
-        payment_intent: paymentIntentId,
-      });
+        const sessionList = await stripe.checkout.sessions.list({
+          payment_intent: paymentIntent.id,
+        });
 
-      const { purchaseId } = session.data[0].metadata;
+        const session = sessionList.data[0];
+        const { purchaseId } = session.metadata;
+        const purchase = await Purchase.findById(purchaseId);
+        if (!purchase) return res.status(404).send("Purchase not found");
+        
+        console.log("Purchase here "+purchase);
+        res.status(500).send("Purchase here "+purchase);
+        
 
-      const purchaseData = await Purchase.findById(purchaseId);
-      const userData = await User.findById(purchaseData.userId);
-      data = await ServiceBook.findById(
-        purchaseData.OrderId.toString()
-      );
+        let record =
+          (await ServiceBook.findById(purchase.orderId)) ||
+          (await RequestPickup.findById(purchase.orderId));
 
-      if(!data){
-        data=await RequestPickup.findById(
-          purchaseData.OrderId.toString()
-        );
+        if (!record) return res.status(404).send("Related order not found");
+
+        purchase.status = "Completed";
+        purchase.paymentStage = record.balance !== 0 ? "AdvancePaid" : "FullyPaid";
+        await purchase.save();
+
+        record.balance = 0;
+        record.status = purchase.paymentStage === "AdvancePaid" ? "In Progress" : "Completed";
+        await record.save();
+
+        break;
       }
 
-      data.status="Completed";
-      await data.save();
+      case "payment_intent.payment_failed": {
+        const paymentIntent = event.data.object;
 
-      purchaseData.status = "completed";
-      await purchaseData.save();
+        const sessionList = await stripe.checkout.sessions.list({
+          payment_intent: paymentIntent.id,
+        });
 
-      break;
+        const session = sessionList.data[0];
+        const { purchaseId } = session.metadata;
+        const purchase = await Purchase.findById(purchaseId);
+        if (purchase) {
+          purchase.status = "Failed";
+          purchase.paymentStage = "Unpaid";
+          await purchase.save();
+        }
+
+        break;
+      }
+
+      default:
+        console.log(`Unhandled event type: ${event.type}`);
     }
-    case "payment_intent.payment_failed": {
-      const paymentIntent = event.data.object;
-      const paymentIntentId = paymentIntent.id;
 
-      const session = await stripeInstance.checkout.sessions.list({
-        payment_intent: paymentIntentId,
-      });
-
-      const { purchaseId } = session.data[0].metadata;
-      const purchaseData = await Purchase.findById(purchaseId);
-      purchaseData.status = "Failed";
-      await purchaseData.save();
-
-      break;
-    }
-    default:
-      console.log(`Unhandled event type ${event.type}`);
+    res.json({ received: true });
+  } catch (err) {
+    console.error("Webhook processing error:", err);
+    res.status(500).send("Internal Server Error");
   }
-
-  //Return a response to acknowledge receipt of the event
-  response.json({ received: true });
 };

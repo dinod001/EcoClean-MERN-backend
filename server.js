@@ -2,7 +2,7 @@ import express from "express";
 import "dotenv/config";
 import cors from "cors";
 import connectDB from "./config/dbConnect.js";
-import { clerkWebhooks } from "./controllers/webHook.js";
+import { clerkWebhooks, stripeWebhooks } from "./controllers/webHook.js";
 import { clerkMiddleware } from "@clerk/express";
 import serviceRouter from "./routes/serviceRouter.js";
 import requestPickupRouter from "./routes/requestPickup.js";
@@ -19,6 +19,7 @@ await connectDB();
 await connectCloudinary();
 
 //middlewares
+server.post("/stripe", express.raw({ type: "application/json" }), stripeWebhooks);
 server.use(express.json());
 server.use(cors());
 server.use(clerkMiddleware())
@@ -45,6 +46,9 @@ server.use("/api/user",express.json(),customerInquiryRouter)
 server.use("/api/user",express.json(),notificationRouter)
 
 server.post("/clerk", express.json(), clerkWebhooks);
+
+
+
 
 
 //PORT define

@@ -25,9 +25,17 @@ const requestPickupSchema=new mongoose.Schema({
         type:Date,
         required:true
     },
+    advance:{
+        type:Number,
+        default:0
+    },
     price:{
         type:Number,
-        default:10
+        default:0
+    },
+    balance:{
+        type:Number,
+        default:0
     },
     staff: [
         {
