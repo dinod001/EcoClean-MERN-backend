@@ -104,7 +104,7 @@ export const stripeWebhooks = async (request, response) => {
       purchaseData.paymentStage = orderData.advance !== 0 ? "AdvancePaid" : "FullyPaid";
       await purchaseData.save();
 
-      orderData.advance = 0;
+      purchaseData.paymentStage === "AdvancePaid" ?orderData.advance = 0:orderData.balance=0;
       orderData.status = purchaseData.paymentStage === "AdvancePaid" ? "In Progress" : "Completed";
       await orderData.save();
 
