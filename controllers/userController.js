@@ -61,7 +61,6 @@ export const completePayment = async (req, res) => {
         quantity: 1,
       },
     ];
-    console.log(newPurchase._id);
     
     const session = await stripe.checkout.sessions.create({
       success_url: `${origin}/loading/my-enrollments`,

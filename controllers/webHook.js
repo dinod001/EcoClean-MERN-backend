@@ -89,6 +89,8 @@ export const stripeWebhooks = async (request, response) => {
           return response.status(400).send("purchaseId metadata missing");
         }
     
+        console.log(purchaseId);
+        
         const purchaseData = await Purchase.findById(purchaseId);
         if (!purchaseData) {
           return response.status(404).send("Purchase record not found in DB");
