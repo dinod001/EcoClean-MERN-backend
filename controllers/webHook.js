@@ -83,49 +83,33 @@ export const stripeWebhooks = async (request, response) => {
     switch (event.type) {
       case "payment_intent.succeeded": {
         const paymentIntent = event.data.object;
-        const paymentIntentId = paymentIntent.id;
-
-        // Get checkout sessions related to this payment intent
-        const sessions = await stripeInstance.checkout.sessions.list({
-          payment_intent: paymentIntentId,
-          limit: 1,
-        });
-
-        if (!sessions.data.length) {
-          console.error("No checkout session found for payment_intent:", paymentIntentId);
-          return response.status(404).send("Session not found");
-        }
-
-        const session = sessions.data[0];
-        const purchaseId = session.metadata?.purchaseId;
-
+      
+        // Use purchaseId directly from metadata of paymentIntent
+        const purchaseId = paymentIntent.metadata.purchaseId;
+      
         if (!purchaseId) {
-          console.error("purchaseId missing in session metadata for payment_intent:", paymentIntentId);
-          return response.status(400).send("purchaseId metadata missing");
-        }
-
-        const purchaseData = await Purchase.findById(purchaseId);
-        if (!purchaseData) {
-          console.error("Purchase not found in DB for ID:", purchaseId);
           return response.status(404).send("Purchase not found");
         }
-
-        // Load related user and service/request data
-        const userData = await User.findById(purchaseData.userId);
-
+      
+        const purchaseData = await Purchase.findById(purchaseId);
+        if (!purchaseData) {
+          return response.status(404).send("Purchase record not found in DB");
+        }
+      
         let data = await ServiceBook.findById(purchaseData.orderId.toString());
+      
         if (!data) {
           data = await RequestPickup.findById(purchaseData.orderId.toString());
         }
-
+      
         purchaseData.status = "completed";
         purchaseData.paymentStage = data.balance !== 0 ? "AdvancePaid" : "FullyPaid";
         await purchaseData.save();
-
+      
         data.balance = 0;
         data.status = purchaseData.paymentStage === "AdvancePaid" ? "In Progress" : "Completed";
         await data.save();
-
+      
         break;
       }
 
