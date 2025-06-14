@@ -61,7 +61,6 @@ export const completePayment = async (req, res) => {
         quantity: 1,
       },
     ];
-    
     const session = await stripe.checkout.sessions.create({
       success_url: `${origin}/loading/my-enrollments`,
       cancel_url: `${origin}/`,
@@ -71,7 +70,7 @@ export const completePayment = async (req, res) => {
         purchaseId: newPurchase._id.toString(),
       },
     });
-
+  
     return res.json({ success: true, session_url: session.url });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });

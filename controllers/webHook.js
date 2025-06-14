@@ -61,7 +61,7 @@ export const clerkWebhooks = async (req, res) => {
   }
 };
 
-
+//payment
 const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export const stripeWebhooks = async (request, response) => {
@@ -69,22 +69,26 @@ export const stripeWebhooks = async (request, response) => {
   let event;
 
   try {
-    event = stripeInstance.webhooks.constructEvent(
+    event = Stripe.webhooks.constructEvent(
       request.body,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET
     );
   } catch (err) {
-    console.error("Stripe webhook signature verification failed.", err.message);
-    return response.status(400).send(`Webhook Error: ${err.message}`);
+    response.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   try {
     switch (event.type) {
-      case "checkout.session.completed": {
-        const session = event.data.object;
+      case "payment_intent.succeeded": {
+        const paymentIntent = event.data.object;
+        const paymentIntentId = paymentIntent.id;
+
+        const session = await stripeInstance.checkout.sessions.list({
+          payment_intent: paymentIntentId,
+        });
     
-        const purchaseId = session.metadata.purchaseId;
+        const { purchaseId } = session.data[0].metadata;
         if (!purchaseId) {
           return response.status(400).send("purchaseId metadata missing");
         }
