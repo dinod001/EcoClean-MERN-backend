@@ -81,37 +81,35 @@ export const stripeWebhooks = async (request, response) => {
 
   try {
     switch (event.type) {
-      case "payment_intent.succeeded": {
-        const paymentIntent = event.data.object;
-      
-        // Use purchaseId directly from metadata of paymentIntent
-        const purchaseId = paymentIntent.metadata.purchaseId;
-      
+      case "checkout.session.completed": {
+        const session = event.data.object;
+    
+        const purchaseId = session.metadata.purchaseId;
         if (!purchaseId) {
-          return response.status(404).send("Purchase not found"+purchaseId);
+          return response.status(400).send("purchaseId metadata missing");
         }
-      
+    
         const purchaseData = await Purchase.findById(purchaseId);
         if (!purchaseData) {
           return response.status(404).send("Purchase record not found in DB");
         }
-      
+    
         let data = await ServiceBook.findById(purchaseData.orderId.toString());
-      
         if (!data) {
           data = await RequestPickup.findById(purchaseData.orderId.toString());
         }
-      
+    
         purchaseData.status = "completed";
         purchaseData.paymentStage = data.advance !== 0 ? "AdvancePaid" : "FullyPaid";
         await purchaseData.save();
-      
+    
         data.advance = 0;
         data.status = purchaseData.paymentStage === "AdvancePaid" ? "In Progress" : "Completed";
         await data.save();
-      
+    
         break;
       }
+    
 
       case "payment_intent.payment_failed": {
         const paymentIntent = event.data.object;
