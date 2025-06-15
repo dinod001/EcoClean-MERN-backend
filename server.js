@@ -11,6 +11,7 @@ import customerInquiryRouter from "./routes/customerInquiryRouter.js";
 import notificationRouter from "./routes/notificationRouter.js";
 import userRouter from "./routes/userRouter.js";
 import personnelRouter from "./routes/personnelRouter.js";
+import personnelUserManageRouter from "./routes/personnelUserManage.js";
 
 //server initialize
 const server = express();
@@ -48,6 +49,9 @@ server.use("/api/user",express.json(),notificationRouter)
 
 //personnel login and regsiter
 server.use("/api/personnel",express.json(),personnelRouter)
+
+//personnel manage users
+server.use("/api/personnel",express.json(),personnelUserManageRouter)
 
 server.post("/clerk", express.json(), clerkWebhooks);
 

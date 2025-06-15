@@ -8,7 +8,7 @@ const personnelRouter=express.Router()
 personnelRouter.post("/register",personnelRegister)
 
 //login personnel
-personnelRouter.post("/login",personnelAuthentication,personnelLogin)
+personnelRouter.post("/login",personnelLogin)
 
 //get login personnel details
 personnelRouter.get("/me",personnelAuthentication,personnelDetails)
