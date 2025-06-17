@@ -59,3 +59,17 @@ export const getBooking=async(req,res)=>{
         res.status(500).json({ success: false,message:error.message });
     }
 }
+
+
+//Personnel APIS
+
+
+//get all booking
+export const personnelGetAllBooking=async(req,res)=>{
+    try {
+        const allBookings=await ServiceBook.find()
+        res.status(200).json({ success: true, allBookings });
+    } catch (error) {
+        res.status(500).json({ success: false,message:error.message });
+    }
+}

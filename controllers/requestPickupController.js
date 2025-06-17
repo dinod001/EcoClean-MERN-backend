@@ -96,3 +96,47 @@ export const updateRequest = async (req, res) => {
     }
   }
   
+
+//personnel APIS
+
+//get all request pickup
+export const personnelGetALLpickup=async(req,res)=>{
+    try {
+        const allPickups=await RequestPickup.find()
+        res.status(200).json({ success: true, allPickups });
+    } catch (error) {
+        res.status(400).json({ success: false,message:error.message });
+    }
+}
+
+// PATCH - Update pickup request
+export const personnelUpdateRequest = async (req, res) => {
+    try {
+      const { requestPickupData} = req.body;
+      const {requestId}=req.params;
+      const imageFile = req.file;
+  
+      const parsedPickupData = JSON.parse(requestPickupData);
+  
+      // Optional: upload image if provided
+      if (imageFile) {
+        const imageUpload = await cloudinary.uploader.upload(imageFile.path);
+        parsedPickupData.imageUrl = imageUpload.secure_url;
+      }
+  
+      const updatedRequest = await RequestPickup.findByIdAndUpdate(
+        requestId,
+        { $set: parsedPickupData },
+        { new: true }
+      );
+  
+      if (!updatedRequest) {
+        return res.status(404).json({ success: false, message: "Request not found" });
+      }
+  
+      res.status(200).json({ success: true, message: "Request updated", data: updatedRequest });
+  
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  };

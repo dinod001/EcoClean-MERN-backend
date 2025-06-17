@@ -1,6 +1,5 @@
 import express from "express"
 import { deleteCustomer, deletePersonnel, getAllCustomers, getAllPersonnels, getCustomerById, getPersonnelById, updatePersonnel } from "../controllers/personnelManageUserController.js"
-import { personnelAuthentication } from "../middleware/personnelAuthMiddleware.js"
 import { roleBaseAccessByAdmin } from "../middleware/roleAccessMiddleware.js"
 
 
@@ -9,27 +8,27 @@ const personnelUserManageRouter= express.Router()
 /*Handle personnel CRUD*/
 
 //delete a personnel
-personnelUserManageRouter.delete("/deletePersonnel/:id",personnelAuthentication,roleBaseAccessByAdmin,deletePersonnel)
+personnelUserManageRouter.delete("/deletePersonnel/:id",roleBaseAccessByAdmin,deletePersonnel)
 
 //get personnel by id
-personnelUserManageRouter.get("/getPersonnel/:id",personnelAuthentication,roleBaseAccessByAdmin,getPersonnelById)
+personnelUserManageRouter.get("/getPersonnel/:id",roleBaseAccessByAdmin,getPersonnelById)
 
 //get All personnel
-personnelUserManageRouter.get("/getAllPersonnels",personnelAuthentication,roleBaseAccessByAdmin,getAllPersonnels)
+personnelUserManageRouter.get("/getAllPersonnels",roleBaseAccessByAdmin,getAllPersonnels)
 
 //update personnel details
-personnelUserManageRouter.patch("/UpdatePersonnel/:id",personnelAuthentication,roleBaseAccessByAdmin,updatePersonnel)
+personnelUserManageRouter.patch("/UpdatePersonnel/:id",roleBaseAccessByAdmin,updatePersonnel)
 
 
 /*handle customer details*/
 
 //get customer by id
-personnelUserManageRouter.get("/getCustomer/:id",personnelAuthentication,getCustomerById)
+personnelUserManageRouter.get("/getCustomer/:id",getCustomerById)
 
 //get All customers
-personnelUserManageRouter.get("/getAllCustomers",personnelAuthentication,getAllCustomers)
+personnelUserManageRouter.get("/getAllCustomers",getAllCustomers)
 
 //delete customer
-personnelUserManageRouter.delete("/deleteCustomer/:id",personnelAuthentication,deleteCustomer)
+personnelUserManageRouter.delete("/deleteCustomer/:id",deleteCustomer)
 
 export default personnelUserManageRouter
