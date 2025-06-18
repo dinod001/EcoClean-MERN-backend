@@ -1,16 +1,14 @@
-import express from 'express'
-import { addServiceBook, deleteBooking, getAllBooking, getBooking, personnelGetAllBooking, updateBooking } from '../controllers/serviceBookController.js'
-import { personnelAuthentication } from '../middleware/personnelAuthMiddleware.js'
-
+import express from "express";
+import { addService, deleteService, getAllServices, getServiceById, updateService } from "../controllers/serviceController.js";
+import upload from "../config/multer.js";
 
 const serviceRouter=express.Router()
 
 
-serviceRouter.post("/book-service",addServiceBook)
-serviceRouter.delete("/delete-booking/:id",deleteBooking)
-serviceRouter.put("/update-booking",updateBooking)
-serviceRouter.get("/all-bookings",getAllBooking)
-serviceRouter.get("/get-booking/:id",getBooking)
-serviceRouter.get("/getall-bookings",personnelAuthentication,personnelGetAllBooking)
+serviceRouter.post("/add-new-service",upload.single("image"),addService)
+serviceRouter.get("/get-service/:id",getServiceById)
+serviceRouter.get("/get-all-services",getAllServices)
+serviceRouter.delete("/delete-service/:id",deleteService)
+serviceRouter.patch("/update-service/:id",upload.single("image"),updateService)
 
-export default serviceRouter;
+export default serviceRouter

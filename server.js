@@ -4,7 +4,6 @@ import cors from "cors";
 import connectDB from "./config/dbConnect.js";
 import { clerkWebhooks, stripeWebhooks } from "./controllers/webHook.js";
 import { clerkMiddleware } from "@clerk/express";
-import serviceRouter from "./routes/serviceRouter.js";
 import requestPickupRouter from "./routes/requestPickup.js";
 import connectCloudinary from "./config/cloudinary.js";
 import customerInquiryRouter from "./routes/customerInquiryRouter.js";
@@ -14,6 +13,8 @@ import personnelRouter from "./routes/personnelRouter.js";
 import personnelUserManageRouter from "./routes/personnelUserManage.js";
 import { authenticateUser } from "./middleware/authMiddleware.js";
 import { personnelAuthentication } from "./middleware/personnelAuthMiddleware.js";
+import serviceBookRouter from "./routes/serviceBookRouter.js";
+import serviceRouter from "./routes/serviceRouter.js";
 
 
 //server initialize
@@ -36,7 +37,7 @@ server.get("/", (req, res) => {
 });
 
 //book services
-server.use("/api/user",express.json(),authenticateUser,serviceRouter)
+server.use("/api/user",express.json(),authenticateUser,serviceBookRouter)
 
 //user
 server.use("/api/user",express.json(),authenticateUser,userRouter)
@@ -60,6 +61,9 @@ server.use("/api/personnel",express.json(),personnelAuthentication,personnelUser
 server.use("/api/personnel",express.json(),personnelAuthentication,requestPickupRouter)
 
 //personnel manage service request
+server.use("/api/personnel",express.json(),personnelAuthentication,serviceBookRouter)
+
+//personnel manage services
 server.use("/api/personnel",express.json(),personnelAuthentication,serviceRouter)
 
 server.post("/clerk", express.json(), clerkWebhooks);
