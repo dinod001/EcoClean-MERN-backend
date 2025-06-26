@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
-const personnelSchema=new mongoose.Schema({
+const EmployeeSchema=new mongoose.Schema({
     fullName:{
         type:String,
         required:true
@@ -27,7 +27,7 @@ const personnelSchema=new mongoose.Schema({
         type:String,
         required:true
     },
-    address:{
+    adress:{
         type:String,
         required:true
     },
@@ -47,22 +47,22 @@ const personnelSchema=new mongoose.Schema({
     },
     role:{
         type:String,
-        enum:['Admin','Staff'],
-        required:true,
-        default:'Staff'
+        default:'Employee'
     }
 })
 
-personnelSchema.pre("save", async function (next) {
+
+EmployeeSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
   next();
 });
 
-personnelSchema.methods.matchPassword = async function (enteredpassword) {
-  return await bcrypt.compare(enteredpassword, this.password);
+
+EmployeeSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
 };
 
-const Personnel=mongoose.model("Personnel",personnelSchema)
-export default Personnel
+const Employee = mongoose.model("Employee", EmployeeSchema);
+export default Employee;

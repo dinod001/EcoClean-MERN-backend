@@ -15,6 +15,7 @@ import { authenticateUser } from "./middleware/authMiddleware.js";
 import { personnelAuthentication } from "./middleware/personnelAuthMiddleware.js";
 import serviceBookRouter from "./routes/serviceBookRouter.js";
 import serviceRouter from "./routes/serviceRouter.js";
+import employeeRouter from "./routes/EmployeeRouter.js";
 
 
 //server initialize
@@ -65,6 +66,9 @@ server.use("/api/personnel",express.json(),personnelAuthentication,serviceBookRo
 
 //personnel manage services
 server.use("/api/personnel",express.json(),personnelAuthentication,serviceRouter)
+
+//personnel manage Employees
+server.use("/api/personnel",express.json(),personnelAuthentication,employeeRouter)
 
 server.post("/clerk", express.json(), clerkWebhooks);
 
