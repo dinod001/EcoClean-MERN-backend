@@ -15,7 +15,7 @@ import { authenticateUser } from "./middleware/authMiddleware.js";
 import { personnelAuthentication } from "./middleware/personnelAuthMiddleware.js";
 import serviceBookRouter from "./routes/serviceBookRouter.js";
 import serviceRouter from "./routes/serviceRouter.js";
-import employeeRouter from "./routes/EmployeeRouter.js";
+import employeeRouter from "./routes/employeeRouter.js";
 
 //server initialize
 const server = express();
