@@ -1,5 +1,6 @@
 import Personnel from "../schema/Personnel.js"; // add `.js` if using ES modules and no bundler
 import User from "../schema/Users.js";
+import bcrypt from "bcryptjs";
 
 //delete a user
 export const deletePersonnel = async (req, res) => {
@@ -9,7 +10,9 @@ export const deletePersonnel = async (req, res) => {
     const deletedUser = await Personnel.findByIdAndDelete(userId); //
 
     if (!deletedUser) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     res.status(200).json({ success: true, message: "User deleted" });
@@ -25,7 +28,9 @@ export const getPersonnelById = async (req, res) => {
     const user = await Personnel.findById(userId);
 
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     res.status(200).json({ success: true, user });
@@ -49,24 +54,26 @@ export const getAllPersonnels = async (req, res) => {
 export const updatePersonnel = async (req, res) => {
   try {
     const userId = req.params.id;
-    const {updateData} = req.body;;
+    const { updateData } = req.body;
 
     // Prevent updating password directly here unless you handle hashing again
     if (updateData.password) {
       return res.status(400).json({
         success: false,
-        message: "Password updates must be handled through a separate secure route.",
+        message:
+          "Password updates must be handled through a separate secure route.",
       });
     }
 
-    const updatedUser = await Personnel.findByIdAndUpdate(
-      userId,
-      updateData,
-      { new: true, runValidators: true }
-    );
+    const updatedUser = await Personnel.findByIdAndUpdate(userId, updateData, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!updatedUser) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     res.status(200).json({
@@ -79,7 +86,40 @@ export const updatePersonnel = async (req, res) => {
   }
 };
 
+//personnel reset password by admins
+export const resetPersonnelPassword = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { newPassword } = req.body;
 
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 6 characters long",
+      });
+    }
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    const updatedUser = await Personnel.findByIdAndUpdate(
+      userId,
+      { password: hashedPassword },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Password reset successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 
 /*customer*/
 
@@ -101,7 +141,9 @@ export const getCustomerById = async (req, res) => {
     const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     res.status(200).json({ success: true, user });
@@ -118,7 +160,9 @@ export const deleteCustomer = async (req, res) => {
     const deletedUser = await User.findByIdAndDelete(userId); //
 
     if (!deletedUser) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     res.status(200).json({ success: true, message: "User deleted" });
@@ -126,5 +170,3 @@ export const deleteCustomer = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
-

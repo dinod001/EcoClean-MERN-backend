@@ -1,5 +1,5 @@
 import express from "express"
-import { deleteCustomer, deletePersonnel, getAllCustomers, getAllPersonnels, getCustomerById, getPersonnelById, updatePersonnel } from "../controllers/personnelManageUserController.js"
+import { deleteCustomer, deletePersonnel, getAllCustomers, getAllPersonnels, getCustomerById, getPersonnelById, resetPersonnelPassword, updatePersonnel } from "../controllers/personnelManageUserController.js"
 import { roleBaseAccessByAdmin } from "../middleware/roleAccessMiddleware.js"
 
 
@@ -18,6 +18,9 @@ personnelUserManageRouter.get("/getAllPersonnels",roleBaseAccessByAdmin,getAllPe
 
 //update personnel details
 personnelUserManageRouter.patch("/UpdatePersonnel/:id",roleBaseAccessByAdmin,updatePersonnel)
+
+//reset personnel password
+personnelUserManageRouter.patch("/resetPersonnels/:id/reset-password",roleBaseAccessByAdmin,resetPersonnelPassword)
 
 
 /*handle customer details*/
