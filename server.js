@@ -64,7 +64,7 @@ server.use("/api/personnel",express.json(),personnelAuthentication,requestPickup
 server.use("/api/personnel",express.json(),personnelAuthentication,serviceBookRouter)
 
 //personnel manage services
-server.use("/api/personnel",express.json(),personnelAuthentication,serviceRouter)
+server.use("/api/personnel",express.json(),serviceRouter)
 
 server.post("/clerk", express.json(), clerkWebhooks);
 
