@@ -16,6 +16,7 @@ import { personnelAuthentication } from "./middleware/personnelAuthMiddleware.js
 import serviceBookRouter from "./routes/serviceBookRouter.js";
 import serviceRouter from "./routes/serviceRouter.js";
 import employeeRouter from "./routes/employeeRouter.js";
+import notificationUserRouter from "./routes/notificationUserRouter.js";
 
 //server initialize
 const server = express();
@@ -42,14 +43,17 @@ server.use("/api/user",express.json(),authenticateUser,serviceBookRouter)
 //user
 server.use("/api/user",express.json(),authenticateUser,userRouter)
 
-//plce pickup requst
+//place pickup requst
 server.use("/api/user",express.json(),authenticateUser,requestPickupRouter)
 
 //customer inquiries
 server.use("/api/user",express.json(),authenticateUser,customerInquiryRouter)
 
-//notifications
-server.use("/api/user",express.json(),authenticateUser,notificationRouter)
+//notifications-personnel
+server.use("/api/personnel",express.json(),personnelAuthentication,notificationRouter)
+
+//notifications-user
+server.use("/api/user",express.json(),authenticateUser,notificationUserRouter)
 
 //personnel login and regsiter
 server.use("/api/personnel",express.json(),personnelRouter)
@@ -68,6 +72,9 @@ server.use("/api/personnel",express.json(),serviceRouter)
 
 //personnel manage Employees
 server.use("/api/personnel",express.json(),personnelAuthentication,employeeRouter)
+
+//personnel manage inquiries
+server.use("/api/personnel",express.json(),personnelAuthentication,customerInquiryRouter)
 
 server.post("/clerk", express.json(), clerkWebhooks);
 
