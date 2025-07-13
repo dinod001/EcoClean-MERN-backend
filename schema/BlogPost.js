@@ -1,54 +1,35 @@
 import mongoose from "mongoose";
 
-//commentSchema for blog
-const commentSchema = new mongoose.Schema({
-  userId:{
-        type:String,
-        ref:"User",
-        required:true
-    },
-  content: {
-    type: String,
-    required: true,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
-
-// Main Blog Post schema
+// Blog Post Schema
 const blogPostSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: true,
+      required: [true, "Title is required"],
       trim: true,
     },
-    thumbnailUrl: {
+    imageUrl: {
       type: String,
-    },
-    displayImageUrls: {
-      type: [String],
-      default: [],
+      default: "", // Optional: Add a default empty string if needed
     },
     author: {
       type: String,
-      required: true,
+      required: [true, "Author is required"],
     },
     description: {
       type: String,
-      required: true,
+      required: [true, "Description is required"],
     },
-    isPublished: {
-      type: Boolean,
-      default: false,
+    status: {
+      type: String,
+      enum: ["Published", "Draft"],
+      default: "Draft",
     },
-    comments: [commentSchema],
   },
   {
-    timestamps: true,
+    timestamps: true, // Automatically manages createdAt and updatedAt
   }
 );
 
+// Export the BlogPost model
 export default mongoose.model("BlogPost", blogPostSchema);

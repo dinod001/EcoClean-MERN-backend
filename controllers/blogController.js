@@ -5,16 +5,17 @@ import BlogPost from "../schema/BlogPost.js";
 export const createBlogPost = async (req, res) => {
   try {
     const { blogData } = req.body;
-    const thumbnailFile = req.file; 
+    const image = req.file; 
 
-    if (!thumbnailFile) {
+    if (!image) {
       return res.status(400).json({ success: false, message: "Thumbnail image not attached" });
     }
 
     const parsedBlogData = JSON.parse(blogData);
 
-    const uploaded = await cloudinary.uploader.upload(thumbnailFile.path);
-    parsedBlogData.thumbnailUrl = uploaded.secure_url;
+    const uploaded = await cloudinary.uploader.upload(image.path);
+    parsedBlogData.imageUrl = uploaded.secure_url;
+
 
     parsedBlogData.isPublished = parsedBlogData.isPublished === "true";
     parsedBlogData.displayImageUrls = [];
@@ -66,7 +67,7 @@ export const updateBlogPost = async (req, res) => {
 
     if (thumbnailFile) {
       const thumbnailUpload = await cloudinary.uploader.upload(thumbnailFile.path);
-      updateData.thumbnailUrl = thumbnailUpload.secure_url;
+      updateData.imageUrl = thumbnailUpload.secure_url;
     }
 
     const updatedBlogPost = await BlogPost.findByIdAndUpdate(id, { $set: updateData }, { new: true });
@@ -88,39 +89,6 @@ export const deleteBlogPost = async (req, res) => {
     res.status(200).json({ success: true, message: "Deleted" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-// Add a comment
-export const addComment = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { userId, content } = req.body;
-    const blog = await BlogPost.findById(id);
-    if (!blog) return res.status(404).json({ message: "Blog post not found" });
-    blog.comments.push({ userId, content });
-    await blog.save();
-    res.status(201).json({ message: "Comment added", comment: blog.comments.at(-1) });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
-
-// Delete a comment
-export const deleteComment = async (req, res) => {
-  try {
-    const { id, commentId } = req.params;
-
-    const blog = await BlogPost.findById(id);
-    if (!blog) return res.status(404).json({ message: "Blog post not found" });
-
-    blog.comments = blog.comments.filter(c => c._id.toString() !== commentId);
-    await blog.save();
-
-    res.status(200).json({ message: "Comment deleted" });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
   }
 };
 
