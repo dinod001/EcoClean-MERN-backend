@@ -17,7 +17,8 @@ import serviceBookRouter from "./routes/serviceBookRouter.js";
 import serviceRouter from "./routes/serviceRouter.js";
 import employeeRouter from "./routes/employeeRouter.js";
 import notificationUserRouter from "./routes/notificationUserRouter.js";
-
+import Personnel from "./schema/Personnel.js";
+import blogRouter from "./routes/BlogRounter.js";
 //server initialize
 const server = express();
 
@@ -80,7 +81,8 @@ server.use("/api/personnel",express.json(),personnelAuthentication,customerInqui
 
 server.post("/clerk", express.json(), clerkWebhooks);
 
-
+//Blog management
+ server.use("/api",express.json(),blogRouter)
 
 
 
