@@ -74,5 +74,16 @@ export const updateInquiry = async (req, res) => {
     }
 };
 
+//Personnel methods
+
+//get All inqiuroes
+export const getAllInquiriesByPersonnel = async (req, res) => {
+    try {
+        const inquiries = await CustomerInquiry.find({});
+        res.json({ success: true, data: inquiries });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
 
 
