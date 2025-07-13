@@ -16,6 +16,16 @@ export const getNotificationById = async (req, res) => {
     }
 };
 
+//get all noitifcations
+export const getAllNotifications = async (req, res) => {
+    try {
+        const notifications = await Notification.find().sort({ createdAt: -1 });
+        return res.status(200).json({ success: true, data: notifications });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 //update notification
 export const updateNotification = async (req, res) => {
     try {
