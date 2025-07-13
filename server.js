@@ -64,6 +64,7 @@ server.use("/api/personnel",express.json(),personnelAuthentication,notificationR
 //notifications-user
 server.use("/api/user",express.json(),authenticateUser,notificationUserRouter)
 
+
 // personnel manage users
 server.use("/api/personnel",express.json(),personnelAuthentication,personnelUserManageRouter)
 
