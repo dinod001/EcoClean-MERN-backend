@@ -1,33 +1,31 @@
 import { v2 as cloudinary } from "cloudinary";
 import BlogPost from "../schema/BlogPost.js";
 
-// Create a blog post
+//create a new blog post
 export const createBlogPost = async (req, res) => {
   try {
-    const { title, author, description, isPublished } = req.body;
-    const thumbnailFile = req.files?.thumbnail?.[0];
+    const { blogData } = req.body;
+    const thumbnailFile = req.file; 
 
-    let thumbnailUrl = "";
-    if (thumbnailFile) {
-      const uploaded = await cloudinary.uploader.upload(thumbnailFile.path);
-      thumbnailUrl = uploaded.secure_url;
+    if (!thumbnailFile) {
+      return res.status(400).json({ success: false, message: "Thumbnail image not attached" });
     }
 
-    const blogPostData = {
-      title,
-      author,
-      description,
-      isPublished: isPublished === "true",
-      thumbnailUrl,
-      displayImageUrls: [],
-    };
+    const parsedBlogData = JSON.parse(blogData);
 
-    const newBlogPost = await BlogPost.create(blogPostData);
-    res.status(201).json({ success: true, data: newBlogPost });
+    const uploaded = await cloudinary.uploader.upload(thumbnailFile.path);
+    parsedBlogData.thumbnailUrl = uploaded.secure_url;
+
+    parsedBlogData.isPublished = parsedBlogData.isPublished === "true";
+    parsedBlogData.displayImageUrls = [];
+
+    const newBlogPost = await BlogPost.create(parsedBlogData);
+    res.status(201).json({ success: true, message: "Blog created", data: newBlogPost });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 // Get all blog posts
 export const getAllBlogPosts = async (req, res) => {
@@ -54,14 +52,16 @@ export const getBlogPostById = async (req, res) => {
 export const updateBlogPost = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, author, description, isPublished } = req.body;
-    const thumbnailFile = req.files?.thumbnail?.[0];
+    const { blogData } = req.body;
+    const thumbnailFile = req.file;
+
+    const parsedBlogData = JSON.parse(blogData);
 
     const updateData = {
-      title,
-      author,
-      description,
-      isPublished: isPublished === "true",
+      title: parsedBlogData.title,
+      author: parsedBlogData.author,
+      description: parsedBlogData.description,
+      isPublished: parsedBlogData.isPublished === "true",
     };
 
     if (thumbnailFile) {
@@ -70,8 +70,11 @@ export const updateBlogPost = async (req, res) => {
     }
 
     const updatedBlogPost = await BlogPost.findByIdAndUpdate(id, { $set: updateData }, { new: true });
-    if (!updatedBlogPost) return res.status(404).json({ success: false, message: "Not found" });
-    res.status(200).json({ success: true, data: updatedBlogPost });
+    if (!updatedBlogPost) {
+      return res.status(404).json({ success: false, message: "Blog not found" });
+    }
+
+    res.status(200).json({ success: true, message: "Blog updated", data: updatedBlogPost });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
