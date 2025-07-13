@@ -18,7 +18,7 @@ import serviceRouter from "./routes/serviceRouter.js";
 import employeeRouter from "./routes/employeeRouter.js";
 import notificationUserRouter from "./routes/notificationUserRouter.js";
 import Personnel from "./schema/Personnel.js";
-import blogRouter from "./routes/BlogRounter.js";
+import blogRouter from "./routes/blogRouter.js";
 //server initialize
 const server = express();
 
