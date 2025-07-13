@@ -49,31 +49,33 @@ server.use("/api/user",express.json(),authenticateUser,requestPickupRouter)
 //customer inquiries
 server.use("/api/user",express.json(),authenticateUser,customerInquiryRouter)
 
+
+
+//personnel login and register (MUST be first for public access)
+server.use("/api/personnel",express.json(),personnelRouter)
+
+// Mount serviceRouter immediately after personnelRouter for public service endpoints
+server.use("/api/personnel",express.json(),serviceRouter)
+
 //notifications-personnel
 server.use("/api/personnel",express.json(),personnelAuthentication,notificationRouter)
 
 //notifications-user
 server.use("/api/user",express.json(),authenticateUser,notificationUserRouter)
 
-//personnel login and regsiter
-server.use("/api/personnel",express.json(),personnelRouter)
-
-//personnel manage users
+// personnel manage users
 server.use("/api/personnel",express.json(),personnelAuthentication,personnelUserManageRouter)
 
-//personnel manage pickup request
+// personnel manage pickup request
 server.use("/api/personnel",express.json(),personnelAuthentication,requestPickupRouter)
 
-//personnel manage service request
+// personnel manage service request
 server.use("/api/personnel",express.json(),personnelAuthentication,serviceBookRouter)
 
-//personnel manage services
-server.use("/api/personnel",express.json(),serviceRouter)
-
-//personnel manage Employees
+// personnel manage Employees
 server.use("/api/personnel",express.json(),personnelAuthentication,employeeRouter)
 
-//personnel manage inquiries
+// personnel manage inquiries
 server.use("/api/personnel",express.json(),personnelAuthentication,customerInquiryRouter)
 
 server.post("/clerk", express.json(), clerkWebhooks);

@@ -61,7 +61,7 @@ export const updateService = async (req, res) => {
 
         if (imageFile) {
             const imageUpload = await cloudinary.uploader.upload(imageFile.path);
-            parsedUpdateData.image = imageUpload.secure_url;
+            parsedUpdateData.imageUrl = imageUpload.secure_url;
         }
 
         const updatedService = await Service.findByIdAndUpdate(id, parsedUpdateData, { new: true });

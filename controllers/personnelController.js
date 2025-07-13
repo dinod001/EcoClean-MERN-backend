@@ -50,15 +50,15 @@ export const personnelLogin= async (req, res) => {
   const { userName, password } = req.body;
   try {
     const personnel = await Personnel.findOne({ userName });
-    if (!personnel || (await !personnel.matchPassword(password))) {
+    if (!personnel || !(await personnel.matchPassword(password))) {
       return res.status(400).json({ message: "Inavlid credentials" });
     }
     const token = generateWebToken(personnel._id,personnel.role);
     res.json({
-      _id: Personnel._id,
-      username: Personnel.username,
-      email: Personnel.email,
-      role:Personnel.role,
+      _id: personnel._id,
+      username: personnel.username,
+      email: personnel.email,
+      role: personnel.role,
       token,
     });
   } catch (error) {

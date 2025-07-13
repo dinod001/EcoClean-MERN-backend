@@ -46,7 +46,7 @@ const serviceBookSchema=new mongoose.Schema({
     ],
     status:{
         type: String,
-        enum: ["Pending", "Completed", "Canceled","In Progress"],
+        enum: ["Pending", "Completed", "Canceled","In Progress","Confirmed"],
         default: "Pending",
     }
 },{timestamps:true})
