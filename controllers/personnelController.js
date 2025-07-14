@@ -67,6 +67,34 @@ export const personnelLogin= async (req, res) => {
   }
 };
 
+//change password
+export const resetPersonnelPassword = async (req, res) => {
+  const { newPassword } = req.body;
+  const { id } = req.params;
+
+  if (!newPassword) {
+    return res.status(400).json({ message: "New password is required" });
+  }
+
+  try {
+    const personnel = await Personnel.findById(id);
+    if (!personnel) {
+      return res.status(404).json({ message: "Personnel not found" });
+    }
+
+    personnel.password = newPassword; // Will be hashed in pre-save hook
+    await personnel.save();
+
+    res.status(200).json({ message: "Password has been reset successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error", error });
+  }
+};
+
+
+
+
 export const personnelDetails= async (req, res) => {
   res.status(200).json(req.personnel);
 };
